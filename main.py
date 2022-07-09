@@ -18,4 +18,8 @@ async def random_number(message, *arg):
     max = int(arg[1])
     await message.reply(random.randint(min, max))
 
+@bot.command()
+async def random_word(message, *arg):
+    await message.reply(arg[random.randint(0, len(arg))])
+
 bot.run(config['token'])
