@@ -1,30 +1,36 @@
-import discord, os
+import discord, os, datetime
 import random
+
 from discord.ext import commands
 import discord.user
+
 from random import randint
 
 import requests
 from bs4 import BeautifulSoup
 
-url = 'https://ru.citaty.net/'
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'lxml')
-quotes = soup.find_all('p')
+# url_ = 'https://ru.citaty.net/'
+# response = requests.get(url)
+# soup = BeautifulSoup(response.text, 'lxml')
+# quotes = soup.find_all('p')
 
-print(quotes[0].text)
-print(quotes[1].text)
-
-# for quote in quotes:
-#     print(quote.text)
+dt = datetime.datetime.now()
+dt_string = dt.strftime("Date: %d/%m/%Y  Time: %H:%M:%S")
 
 config = {
+    'token': 'OTk1MzA5NzExMzUwMDM4NTc4.GTS_QM.VtqDhxzeyfshVDWSjYXwHw5tI1_9JCJ6ym6G7o',
     'prefix': '!',
 }
 
 bot = commands.Bot(command_prefix = config['prefix'])
 client = discord.Client
 chanal = discord.TextChannel
+guild = discord.Guild
+
+print('--------------------------------------------------')
+print('SERVER ONLINE')
+print(dt_string)
+print('--------------------------------------------------')
 
 @bot.command()
 async def testworking(message):
@@ -33,6 +39,7 @@ async def testworking(message):
 #Выводит число в переданном диапазоне из 2 цифр, или 1 случайный элемент из переданных в команду
 @bot.command()
 async def random(message, *arg):
+    print(f'RANDOM BY {message.author} / {message.guild} AT {dt_string} ')
     if len(arg) == 2 and str(arg[0]).isdigit() == True and str(arg[1]).isdigit() == True:
         min = int(arg[0])
         max = int(arg[1])
@@ -48,20 +55,11 @@ async def random(message, *arg):
 @bot.command()
 @commands.has_role('♣Босс♣')
 async def info(message, user: discord.User):
+    print(f'GET INFO ABOUT {user.name} / {message.guild} BY {message.author} AT {dt_string}')
     user_info = f'Имя пользователя: {user.name}\n' \
                 f'Отображаемое имя: {user.display_name}\n' \
                 f'ID пользователя: {user.id}\n' \
                 f'Дата регистрации аккаунта: {user.created_at}\n'
     await message.send(user_info)
-
-@bot.command()
-async def sent(message):
-    random_key = randint(1, len(quotes))
-    if random_key % 2 == 0:
-        random_key += 1
-    text = str(quotes[random_key].text)
-    author = str(quotes[random_key + 1].text)
-    message_ = text + author
-    await message.send(message_)
 
 bot.run(config['token'])
