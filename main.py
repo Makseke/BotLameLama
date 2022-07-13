@@ -1,4 +1,6 @@
-import discord, os, datetime
+from config import config
+
+import discord, os, datetime, json
 import random
 
 from discord.ext import commands
@@ -9,18 +11,8 @@ from random import randint
 import requests
 from bs4 import BeautifulSoup
 
-# url_ = 'https://ru.citaty.net/'
-# response = requests.get(url)
-# soup = BeautifulSoup(response.text, 'lxml')
-# quotes = soup.find_all('p')
-
 dt = datetime.datetime.now()
 dt_string = dt.strftime("Date: %d/%m/%Y  Time: %H:%M:%S")
-
-config = {
-    'token': 'OTk1MzA5NzExMzUwMDM4NTc4.GTS_QM.VtqDhxzeyfshVDWSjYXwHw5tI1_9JCJ6ym6G7o',
-    'prefix': '!',
-}
 
 bot = commands.Bot(command_prefix = config['prefix'])
 client = discord.Client
@@ -50,6 +42,7 @@ async def random(message, *arg):
         await message.reply(randint(min, max))
     else:
         await message.reply(arg[randint(0, len(arg))])
+    await message.message.delete()
 
 #Выводит онформацию о пользователе
 @bot.command()
