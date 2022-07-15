@@ -22,13 +22,39 @@ def time_now():
     dt_string = dt.strftime("Date: %d/%m/%Y  Time: %H:%M:%S")
     return dt_string
 
+def sec_to_time(sec):
+    sec = int(sec)
+    hour = 0
+    min = 0
+    while sec >= 60:
+        sec -= 60
+        min += 1
+        if min >= 60:
+            min -= 60
+            hour += 1
+    if min == 0 and hour == 0:
+        final_sec_to_time = f'{sec} SEC'
+        return final_sec_to_time
+    elif min != 0 and hour == 0:
+        if sec < 10:
+            sec = '0' + str(sec)
+        final_sec_to_time = f'{min}:{sec} MIN'
+        return final_sec_to_time
+    else:
+        if min < 10:
+            min = '0' + str(min)
+        if sec < 10:
+            sec = '0' + str(sec)
+        final_sec_to_time = f'{hour}:{min}:{sec} HOUR'
+        return final_sec_to_time
+
 print('--------------------------------------------------')
 print('SERVER ONLINE')
 print(time_now())
-print('--------------------------------------------------')
 
 @bot.event
 async def on_ready():
+    print('--------------------------------------------------')
     for guilds in bot.guilds:
         print(f'{guilds} SERVER WITH {guilds.member_count} USERS USING LAMELAMA')
     print('--------------------------------------------------')
@@ -37,7 +63,7 @@ async def on_ready():
     global tdict
     tdict = {}
     global time_start
-    time_start = time.time
+    time_start = time.time()
 
 @bot.event
 async def on_voice_state_update(member, before, after):
@@ -45,9 +71,9 @@ async def on_voice_state_update(member, before, after):
     if before.channel is None and after.channel is not None:
         tdict[author] = time.time()
     elif before.channel is not None and after.channel is None and author in tdict:
-        print(str(time.time()-tdict[author]).split('.')[0], f'SEC BY {member.name} AT {member.guild}')
+        print(sec_to_time(str(time.time()-tdict[author]).split('.')[0]), f'BY {member.name} AT {member.guild}')
     elif before.channel is not None and after.channel is None and author not in tdict:
-        print(str(time.time() - time_start).split('.')[0], f'SEC BY {member.name} AT {member.guild}')
+        print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
 
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")
 async def makseke(message, min: Option(int), max: Option(int)):
