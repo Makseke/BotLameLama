@@ -7,6 +7,16 @@ from random import randint
 
 import datetime
 
+import time
+
+intents = discord.Intents.default()
+intents.members = True
+
+bot = discord.Bot(
+    intents=intents,
+    # debug_guilds=[995982160928444486]
+)
+
 def time_now():
     dt = datetime.datetime.now()
     dt_string = dt.strftime("Date: %d/%m/%Y  Time: %H:%M:%S")
@@ -17,13 +27,27 @@ print('SERVER ONLINE')
 print(time_now())
 print('--------------------------------------------------')
 
+@bot.event
+async def on_ready():
+    for guilds in bot.guilds:
+        print(f'{guilds} SERVER WITH {guilds.member_count} USERS USING LAMELAMA')
+    print('--------------------------------------------------')
+    print(f"{len(bot.guilds)} SERVERS USING LAMELAMA")
+    print('--------------------------------------------------')
+    global tdict
+    tdict = {}
+    global time_start
+    time_start = time.time
 
-intents = discord.Intents.default()
-
-bot = discord.Bot(
-    intents=intents,
-    # debug_guilds=[995982160928444486]
-)
+@bot.event
+async def on_voice_state_update(member, before, after):
+    author = member.id
+    if before.channel is None and after.channel is not None:
+        tdict[author] = time.time()
+    elif before.channel is not None and after.channel is None and author in tdict:
+        print(str(time.time()-tdict[author]).split('.')[0], f'SEC BY {member.name} AT {member.guild}')
+    elif before.channel is not None and after.channel is None and author not in tdict:
+        print(str(time.time() - time_start).split('.')[0], f'SEC BY {member.name} AT {member.guild}')
 
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")
 async def makseke(message, min: Option(int), max: Option(int)):
@@ -53,6 +77,8 @@ async def info(message, member: discord.User):
                 f'Дата регистрации аккаунта: {dt_member}\n'
     if member.name == 'makseke':
         user_info += 'Мой повелитель... и ваш...\n'
+    if member.name == 'Nyan_Tyan':
+        user_info += 'Админ хромой ламы\n'
     await message.send(user_info)
 
 @bot.slash_command(description='Выводит информацию о пользователе в виде карточки', name='info_card')
