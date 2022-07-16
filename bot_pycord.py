@@ -2,6 +2,8 @@ from config import config
 
 import discord
 from discord.commands import Option
+from discord.ext import commands
+from discord.utils import get
 
 from random import randint
 
@@ -19,7 +21,7 @@ bot = discord.Bot(
 
 def time_now():
     dt = datetime.datetime.now()
-    dt_string = dt.strftime("Date: %d/%m/%Y  Time: %H:%M:%S")
+    dt_string = dt.strftime("DATE: %d/%m/%Y  TIME: %H:%M:%S")
     return dt_string
 
 def sec_to_time(sec):
@@ -55,6 +57,7 @@ print(time_now())
 @bot.event
 async def on_ready():
     print('--------------------------------------------------')
+    print(f'INFO AT {time_now()}')
     for guilds in bot.guilds:
         print(f'{guilds} SERVER WITH {guilds.member_count} USERS USING LAMELAMA')
     print('--------------------------------------------------')
@@ -93,20 +96,6 @@ async def makseke(message, string: Option(str)):
     else:
         await message.respond(string_list[randint(0, len(string_list))])
 
-@bot.slash_command(description="Выводит информацию о пользователе", name="info")
-async def info(message, member: discord.User):
-    print(f'GET INFO ABOUT {member.name} / {message.guild} BY {message.author} AT {time_now()}')
-    dt_member = str(member.created_at).split('.')[0]
-    user_info = f'Имя пользователя: {member.name}\n' \
-                f'Отображаемое имя: {member.display_name}\n' \
-                f'ID пользователя: {member.id}\n' \
-                f'Дата регистрации аккаунта: {dt_member}\n'
-    if member.name == 'makseke':
-        user_info += 'Мой повелитель... и ваш...\n'
-    if member.name == 'Nyan_Tyan':
-        user_info += 'Админ хромой ламы\n'
-    await message.send(user_info)
-
 @bot.slash_command(description='Выводит информацию о пользователе в виде карточки', name='info_card')
 async def info_card(message, member: discord.User):
     print(f'GET INFO_CARD ABOUT {member.name} / {message.guild} BY {message.author} AT {time_now()}')
@@ -119,5 +108,14 @@ async def info_card(message, member: discord.User):
         color=0x2EE8CA
     )
     await message.respond(embed=embed)
+
+@bot.slash_command(description='Выдает роль', name='set_role', pass_context=True)
+@commands.has_role("♣Босс♣")
+async def set_role(message, member : discord.User, role : discord.Role):
+    print(f'SET_ROLE FOR {member.name} / {message.guild} BY {message.author} AT {time_now()}')
+    try:
+        await member.add_roles(role)
+    except:
+        print(f'ERROR IN - SET_ROLE FOR {member.name} / {message.guild} BY {message.author} AT {time_now()}')
 
 bot.run(config['token'])
