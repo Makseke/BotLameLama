@@ -11,6 +11,16 @@ import datetime
 
 import time
 
+import psycopg2
+
+# con =psycopg2.connect(
+# )
+# with con.cursor() as cur:
+#     cur.execute(
+#         'SELECT version();'
+#     )
+#     print(f'Server version: {cur.fetchone()}')
+
 intents = discord.Intents.default()
 intents.members = True
 
@@ -112,10 +122,7 @@ async def info_card(message, member: discord.User):
 @bot.slash_command(description='Выдает роль', name='set_role', pass_context=True)
 @commands.has_role("♣Босс♣")
 async def set_role(message, member : discord.User, role : discord.Role):
-    print(f'SET_ROLE FOR {member.name} / {message.guild} BY {message.author} AT {time_now()}')
-    try:
-        await member.add_roles(role)
-    except:
-        print(f'ERROR IN - SET_ROLE FOR {member.name} / {message.guild} BY {message.author} AT {time_now()}')
+    print(f'SET_ROLE {role.name} FOR {member.name} / {message.guild} BY {message.author} AT {time_now()}')
+    await member.add_roles(role)
 
 bot.run(config['token'])
