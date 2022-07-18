@@ -125,7 +125,7 @@ async def set_role(message, member : discord.User, role : discord.Role):
 @bot.slash_command(description='Добавляет пользователя в базу данных вручную', name='add_to_data_base', pass_context=True)
 async def set_role(message, member : discord.User):
     print(f'ADD_TO_DATA_BASE {member.name} / {message.guild} BY {message.author} AT {time_now()}')
-    error_finder = bot_data_base.add_user(member.id, 1, message.guild.id)
+    error_finder = bot_data_base.add_user(member.id, 1, message.guild.id, member.name)
     if error_finder == 0:
         await message.respond(f'Пользователь {member.name} добавлен в базу данных')
     else:

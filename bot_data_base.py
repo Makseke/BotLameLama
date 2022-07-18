@@ -27,7 +27,7 @@ def server_srart():
             cur.close()
             con.close()
 
-def add_user( userid, time_on_server, server_name):
+def add_user( userid, time_on_server, server_name, user_name):
     try:
         con =psycopg2.connect(
             database=config['database'],
@@ -36,21 +36,21 @@ def add_user( userid, time_on_server, server_name):
             host=config['host']
         )
         with con.cursor() as cur:
-            cur.execute("SELECT userid from users_list")
+            cur.execute(f"SELECT * from users_list where userid = '{userid}'")
             user_id = cur.fetchall()
             print(user_id)
-            for i in user_id:
-                if str(i[0]) == str(userid):
-                    print('FIND')
-                else:
-                    print('ERROR')
-            user_info = f""" INSERT INTO users_list (id, userid, timeonserver, servername) VALUES ({id}, {userid}, {time_on_server}, {server_name})"""
-            cur.execute(user_info)
-            con.commit()
-            print("1 запись успешно вставлена")
-            cur.execute("SELECT * from users_list")
-            record = cur.fetchall()
-            print("Результат", record)
+            if len(user_id) == 1:
+                pass
+            elif len(user_id) > 1:
+                pass
+            else:
+                cur.execute(f"SELECT MAX (id) from users_list")
+                max_ = cur.fetchall()
+                new_id = max_[0][0] + 1
+                user_info = f""" INSERT INTO users_list (id, userid, timeonserver, servername, messages) VALUES ({new_id}, {userid}, {time_on_server}, {server_name}, 1)"""
+                cur.execute(user_info)
+                con.commit()
+                print(f"NEW USER IN DATA BASE {user_name}")
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
         error_finder = 1
