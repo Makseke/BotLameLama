@@ -1,4 +1,5 @@
 from config import config
+import bot_data_base
 
 import discord
 from discord.commands import Option
@@ -12,14 +13,9 @@ import datetime
 import time
 
 import psycopg2
+from psycopg2 import Error
 
-# con =psycopg2.connect(
-# )
-# with con.cursor() as cur:
-#     cur.execute(
-#         'SELECT version();'
-#     )
-#     print(f'Server version: {cur.fetchone()}')
+bot_data_base.server_srart()
 
 intents = discord.Intents.default()
 intents.members = True
@@ -124,5 +120,15 @@ async def info_card(message, member: discord.User):
 async def set_role(message, member : discord.User, role : discord.Role):
     print(f'SET_ROLE {role.name} FOR {member.name} / {message.guild} BY {message.author} AT {time_now()}')
     await member.add_roles(role)
+    await message.respond(f'Пользователю {member.name} выдана роль {role}')
+
+@bot.slash_command(description='Добавляет пользователя в базу данных вручную', name='add_to_data_base', pass_context=True)
+async def set_role(message, member : discord.User):
+    print(f'ADD_TO_DATA_BASE {member.name} / {message.guild} BY {message.author} AT {time_now()}')
+    error_finder = bot_data_base.add_user(member.id, 1, message.guild.id)
+    if error_finder == 0:
+        await message.respond(f'Пользователь {member.name} добавлен в базу данных')
+    else:
+        await message.respond(f'Возникла ошибка при добавлении {member.name} в базу данных')
 
 bot.run(config['token'])
