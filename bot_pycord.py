@@ -81,8 +81,12 @@ async def on_voice_state_update(member, before, after):
         tdict[author] = time.time()
     elif before.channel is not None and after.channel is None and author in tdict:
         print(sec_to_time(str(time.time()-tdict[author]).split('.')[0]), f'BY {member.name} AT {member.guild}')
+        actual_time = int(int(str(time.time()-tdict[author]).split('.')[0])/60)
+        bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
     elif before.channel is not None and after.channel is None and author not in tdict:
         print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
+        actual_time = int(int(str(time.time() - tdict[author]).split('.')[0]) / 60)
+        bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
 
 @bot.event
 async def on_member_join(member):
@@ -97,7 +101,6 @@ async def on_member_join(member):
 async def on_message(message):
     if message.author.name != 'BotLameLama':
         bot_data_base.add_message_to_user(message.author.id, message.author.guild.id)
-
 
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")
 async def makseke(message, min: Option(int), max: Option(int)):

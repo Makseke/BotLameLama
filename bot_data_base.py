@@ -27,7 +27,7 @@ def server_srart():
             cur.close()
             con.close()
 
-def add_user( userid, time_on_server, server_name, user_name):
+def add_user(userid, time_on_server, server_name, user_name):
     try:
         con =psycopg2.connect(
             database=config['database'],
@@ -75,6 +75,35 @@ def add_message_to_user(userid, guildid):
                     id = i[0]
                     messages = i[4] + 1
             update_message_count = f"""Update users_list set messages = {messages} where id = {id}"""
+            cur.execute(update_message_count)
+            con.commit()
+    except (Exception, Error) as error:
+        print("ERROR ID ADDING MESSAGE TO USERS_LIST: ", error)
+        error_finder = 1
+        return error_finder
+    finally:
+        error_finder = 0
+        if con:
+            cur.close()
+            con.close()
+        return error_finder
+
+def add_time_to_user(userid, guildid, timeinvoise_minutes):
+    try:
+        con =psycopg2.connect(
+            database=config['database'],
+            user=config['user'],
+            password=config['password'],
+            host=config['host']
+        )
+        with con.cursor() as cur:
+            cur.execute(f"SELECT * from users_list where userid = '{userid}'")
+            users = cur.fetchall()
+            for i in users:
+                if str(i[3]) == str(guildid):
+                    id = i[0]
+                    addtime = int(i[2]) + timeinvoise_minutes
+            update_message_count = f"""Update users_list set timeonserver = {addtime} where id = {id}"""
             cur.execute(update_message_count)
             con.commit()
     except (Exception, Error) as error:
