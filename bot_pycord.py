@@ -84,6 +84,21 @@ async def on_voice_state_update(member, before, after):
     elif before.channel is not None and after.channel is None and author not in tdict:
         print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
 
+@bot.event
+async def on_member_join(member):
+    print(f'ADD_TO_DATA_BASE WHEN MEMBER JOIN SERVER {member.name} / {member.guild} AT {time_now()}')
+    error_finder = bot_data_base.add_user(member.id, 1, member.guild.id, member.name)
+    if error_finder == 0:
+        print(f'Пользователь {member.name} добавлен в базу данных')
+    else:
+        print(f'Возникла ошибка при добавлении {member.name} в базу данных')
+
+@bot.event
+async def on_message(message):
+    if message.author.name != 'BotLameLama':
+        bot_data_base.add_message_to_user(message.author.id, message.author.guild.id)
+
+
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")
 async def makseke(message, min: Option(int), max: Option(int)):
     print(f'RANDOM BY {message.author} / {message.guild} AT {time_now()} ')
