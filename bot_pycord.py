@@ -4,7 +4,6 @@ import bot_data_base
 import discord
 from discord.commands import Option
 from discord.ext import commands
-from discord.utils import get
 
 from random import randint
 
@@ -12,17 +11,13 @@ import datetime
 
 import time
 
-import psycopg2
-from psycopg2 import Error
-
 bot_data_base.server_srart()
 
 intents = discord.Intents.default()
 intents.members = True
 
 bot = discord.Bot(
-    intents=intents,
-    # debug_guilds=[995982160928444486]
+    intents=intents
 )
 
 def time_now():
@@ -93,9 +88,9 @@ async def on_member_join(member):
     print(f'ADD_TO_DATA_BASE WHEN MEMBER JOIN SERVER {member.name} / {member.guild} AT {time_now()}')
     error_finder = bot_data_base.add_user(member.id, 1, member.guild.id, member.name)
     if error_finder == 0:
-        print(f'Пользователь {member.name} добавлен в базу данных')
+        print(f'USER {member.name} ADD TO DATABASE')
     else:
-        print(f'Возникла ошибка при добавлении {member.name} в базу данных')
+        print(f'ERROR IN ADDING {member.name} TO DATABASE')
 
 @bot.event
 async def on_message(message):

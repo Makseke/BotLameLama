@@ -39,7 +39,17 @@ def add_user(userid, time_on_server, server_name, user_name):
             cur.execute(f"SELECT * from users_list where userid = '{userid}'")
             user_id = cur.fetchall()
             if len(user_id) >= 1:
-                pass
+                user_guild_list = []
+                for i in user_id:
+                    user_guild_list.append(str(i[3]))
+                if str(server_name) not in user_guild_list:
+                    cur.execute(f"SELECT MAX (id) from users_list")
+                    max_ = cur.fetchall()
+                    new_id = max_[0][0] + 1
+                    user_info = f""" INSERT INTO users_list (id, userid, timeonserver, servername, messages) VALUES ({new_id}, {userid}, {time_on_server}, {server_name}, 1)"""
+                    cur.execute(user_info)
+                    con.commit()
+                    print(f"ADD USER IN DATA BASE {user_name}")
             else:
                 cur.execute(f"SELECT MAX (id) from users_list")
                 max_ = cur.fetchall()
