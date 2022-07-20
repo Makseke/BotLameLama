@@ -118,11 +118,8 @@ def add_time_to_user(userid, guildid, timeinvoise_minutes):
             con.commit()
     except (Exception, Error) as error:
         print("ERROR ID ADDING MESSAGE TO USERS_LIST: ", error)
-        error_finder = 1
-        return error_finder
     finally:
-        error_finder = 0
         if con:
             cur.close()
             con.close()
-        return error_finder
+            return addtime

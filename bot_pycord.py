@@ -51,6 +51,30 @@ def sec_to_time(sec):
         final_sec_to_time = f'{hour}:{min}:{sec} HOUR'
         return final_sec_to_time
 
+def role_time(time_for_role, member):
+    if time_for_role >= 2400:
+        for i in member.guild.roles:
+            if i.name == 'Любимчик администрации':
+                role = i
+        return role
+    elif time_for_role >= 1800:
+        for i in member.guild.roles:
+            if i.name == 'Любимчик бармена':
+                role = i
+        return role
+    elif time_for_role >= 1200:
+        for i in member.guild.roles:
+            if i.name == 'Посетитель':
+                role = i
+        return role
+    elif time_for_role >= 600:
+        for i in member.guild.roles:
+            if i.name == 'Завсегдатай':
+                role = i
+        return role
+    else:
+        return 0
+
 print('--------------------------------------------------')
 print('SERVER ONLINE')
 print(time_now())
@@ -86,11 +110,19 @@ async def on_voice_state_update(member, before, after):
     elif before.channel is not None and after.channel is None and author in tdict:
         print(sec_to_time(str(time.time()-tdict[author]).split('.')[0]), f'BY {member.name} AT {member.guild}')
         actual_time = int(int(str(time.time()-tdict[author]).split('.')[0])/60)
-        bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
+        time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
+        _ = role_time(time_user, member)
+        if _ != 0:
+            print(f'LVL UP TO {_.name} BY {member.name}')
+            await member.add_roles(_)
     elif before.channel is not None and after.channel is None and author not in tdict:
         print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
         actual_time = int(int(str(time.time() - tdict[author]).split('.')[0]) / 60)
-        bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
+        time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
+        _ = role_time(time_user, member)
+        if _ != 0:
+            print(f'LVL UP TO {_.name} BY {member.name}')
+            await member.add_roles(_)
 
 @bot.event
 async def on_member_join(member):
@@ -112,7 +144,7 @@ async def on_message(message):
         bot_data_base.add_message_to_user(message.author.id, message.author.guild.id)
 
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")
-async def makseke(message, min: Option(int), max: Option(int)):
+async def random(message, min: Option(int), max: Option(int)):
     print(f'RANDOM BY {message.author} / {message.guild} AT {time_now()} ')
     if min > max:
         _ = min
@@ -121,7 +153,7 @@ async def makseke(message, min: Option(int), max: Option(int)):
     await message.respond(randint(min, max))
 
 @bot.slash_command(description="Выдает случайное слово из введенной строки", name="random_word")
-async def makseke(message, string: Option(str)):
+async def random_word(message, string: Option(str)):
     print(f'RANDOM_WORD BY {message.author} / {message.guild} AT {time_now()} ')
     string_list = string.split()
     if len(string_list) == 1:
