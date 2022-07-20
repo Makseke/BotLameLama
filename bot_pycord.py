@@ -87,6 +87,11 @@ async def on_voice_state_update(member, before, after):
 async def on_member_join(member):
     print(f'ADD_TO_DATA_BASE WHEN MEMBER JOIN SERVER {member.name} / {member.guild} AT {time_now()}')
     error_finder = bot_data_base.add_user(member.id, 1, member.guild.id, member.name)
+    role = ''
+    for i in member.guild.roles:
+        if i.name == 'Проходимец':
+            role = i
+    await member.add_roles(role)
     if error_finder == 0:
         print(f'USER {member.name} ADD TO DATABASE')
     else:
