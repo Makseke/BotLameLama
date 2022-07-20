@@ -70,6 +70,15 @@ async def on_ready():
     time_start = time.time()
 
 @bot.event
+async def on_guild_join(guild):
+    print(f'ADD_BOT_ROLES TO {guild.name}')
+    new_role_5 = await guild.create_role(name='Любимчик администрации', color=0xfcf7b5)
+    new_role_4 = await guild.create_role(name='Любимчик бармена', color=0xfcffaf)
+    new_role_3 = await guild.create_role(name='Завсегдатай', color=0xfcff82)
+    new_role_2 = await guild.create_role(name='Посетитель', color=0xf4ec7f)
+    new_role_1 = await guild.create_role(name='Проходимец', color=0xf2da71)
+
+@bot.event
 async def on_voice_state_update(member, before, after):
     author = member.id
     if before.channel is None and after.channel is not None:
@@ -129,7 +138,7 @@ async def info_card(message, member: discord.User):
         description=f'Отображаемое имя: {member.display_name}\n' \
                     f'ID пользователя: {member.id}\n' \
                     f'Дата регистрации аккаунта: {dt_member}\n',
-        color=0x2EE8CA
+        color=0xf2da71
     )
     await message.respond(embed=embed)
 
@@ -148,5 +157,15 @@ async def set_role(message, member : discord.User):
         await message.respond(f'Пользователь {member.name} добавлен в базу данных')
     else:
         await message.respond(f'Возникла ошибка при добавлении {member.name} в базу данных')
+
+@bot.slash_command(description='Добавляет на сервер набор из 5 ролей', name='add_bot_roles', pass_context=True)
+async def add_bot_roles(message):
+    print(f'ADD_BOT_ROLES TO {message.guild.name}')
+    new_role_5 = await message.guild.create_role(name='Любимчик администрации', color=0xfcf7b5)
+    new_role_4 = await message.guild.create_role(name='Любимчик бармена', color=0xfcffaf)
+    new_role_3 = await message.guild.create_role(name='Завсегдатай', color=0xfcff82)
+    new_role_2 = await message.guild.create_role(name='Посетитель', color=0xf4ec7f)
+    new_role_1 = await message.guild.create_role(name='Проходимец', color=0xf2da71)
+    await message.respond(f'Роли бота добавлены на сервер')
 
 bot.run(config['token'])
