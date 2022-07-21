@@ -72,6 +72,11 @@ def role_time(time_for_role, member):
             if i.name == 'Завсегдатай':
                 role = i
         return role
+    elif time_for_role >= 1:
+        for i in member.guild.roles:
+            if i.name == 'Проходимец':
+                role = i
+        return role
     else:
         return 0
 
@@ -113,15 +118,21 @@ async def on_voice_state_update(member, before, after):
         time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
         _ = role_time(time_user, member)
         if _ != 0:
-            print(f'LVL UP TO {_.name} BY {member.name}')
+            if _ in member.roles:
+                pass
+            else:
+                print(f'LVL UP TO {_.name} BY {member.name}')
             await member.add_roles(_)
     elif before.channel is not None and after.channel is None and author not in tdict:
         print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
-        actual_time = int(int(str(time.time() - tdict[author]).split('.')[0]) / 60)
+        actual_time = int(int(str(time.time() - time_start).split('.')[0]) / 60)
         time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
         _ = role_time(time_user, member)
         if _ != 0:
-            print(f'LVL UP TO {_.name} BY {member.name}')
+            if _ in member.roles:
+                pass
+            else:
+                print(f'LVL UP TO {_.name} BY {member.name}')
             await member.add_roles(_)
 
 @bot.event
