@@ -11,8 +11,6 @@ import datetime
 
 import time
 
-bot_data_base.server_srart()
-
 intents = discord.Intents.default()
 intents.members = True
 
@@ -20,11 +18,13 @@ bot = discord.Bot(
     intents=intents
 )
 
+# Выводит время в формате часы:минуты:секунды
 def time_now():
     dt = datetime.datetime.now()
     dt_string = dt.strftime("DATE: %d/%m/%Y  TIME: %H:%M:%S")
     return dt_string
 
+# Переводит секунду в  формат часы:минуты:секунды
 def sec_to_time(sec):
     sec = int(sec)
     hour = 0
@@ -80,10 +80,16 @@ def role_time(time_for_role, member):
     else:
         return 0
 
-print('--------------------------------------------------')
-print('SERVER ONLINE')
-print(time_now())
 
+# Выводит информацию о работе сервера при запуске
+@bot.event
+async def on_connect():
+    print('--------------------------------------------------')
+    print('SERVER ONLINE')
+    print(time_now())
+    bot_data_base.server_srart()
+
+# Выводит список серверов использующих бота
 @bot.event
 async def on_ready():
     print('--------------------------------------------------')
@@ -98,6 +104,7 @@ async def on_ready():
     global time_start
     time_start = time.time()
 
+# Добавлеят основные роли при добавлении на сервер
 @bot.event
 async def on_guild_join(guild):
     print(f'ADD_BOT_ROLES TO {guild.name}')
@@ -107,6 +114,7 @@ async def on_guild_join(guild):
     new_role_2 = await guild.create_role(name='Посетитель', color=0xf4ec7f)
     new_role_1 = await guild.create_role(name='Проходимец', color=0xf2da71)
 
+# Получает время проведенное пользователем в голосовых каналах
 @bot.event
 async def on_voice_state_update(member, before, after):
     author = member.id
@@ -135,6 +143,7 @@ async def on_voice_state_update(member, before, after):
                 print(f'LVL UP TO {_.name} BY {member.name}')
             await member.add_roles(_)
 
+# Добавляет пользователя в базу данных и выдает роль при подключении к серверу
 @bot.event
 async def on_member_join(member):
     print(f'ADD_TO_DATA_BASE WHEN MEMBER JOIN SERVER {member.name} / {member.guild} AT {time_now()}')
@@ -149,11 +158,13 @@ async def on_member_join(member):
     else:
         print(f'ERROR IN ADDING {member.name} TO DATABASE')
 
+# Добавляет единицу к количетсву сообщений пользователя
 @bot.event
 async def on_message(message):
     if message.author.name != 'BotLameLama':
         bot_data_base.add_message_to_user(message.author.id, message.author.guild.id)
 
+# Возвращает случайное число в введеном диапазоне
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")
 async def random(message, min: Option(int), max: Option(int)):
     print(f'RANDOM BY {message.author} / {message.guild} AT {time_now()} ')
@@ -163,6 +174,7 @@ async def random(message, min: Option(int), max: Option(int)):
         max = _
     await message.respond(randint(min, max))
 
+# Возвращает одно случайное слово из введеной строки
 @bot.slash_command(description="Выдает случайное слово из введенной строки", name="random_word")
 async def random_word(message, string: Option(str)):
     print(f'RANDOM_WORD BY {message.author} / {message.guild} AT {time_now()} ')
@@ -172,6 +184,7 @@ async def random_word(message, string: Option(str)):
     else:
         await message.respond(string_list[randint(0, len(string_list))])
 
+# Выводит информацию о пользователе в виде карточки
 @bot.slash_command(description='Выводит информацию о пользователе в виде карточки', name='info_card')
 async def info_card(message, member: discord.User):
     print(f'GET INFO_CARD ABOUT {member.name} / {message.guild} BY {message.author} AT {time_now()}')
@@ -185,6 +198,7 @@ async def info_card(message, member: discord.User):
     )
     await message.respond(embed=embed)
 
+# Выдает роль пользователю
 @bot.slash_command(description='Выдает роль', name='set_role', pass_context=True)
 @commands.has_role("♣Босс♣")
 async def set_role(message, member : discord.User, role : discord.Role):
@@ -192,6 +206,7 @@ async def set_role(message, member : discord.User, role : discord.Role):
     await member.add_roles(role)
     await message.respond(f'Пользователю {member.name} выдана роль {role}')
 
+# Добавляет пользователя в базу данных в случае если он не был зарегистрирован при подключении к серверу
 @bot.slash_command(description='Добавляет пользователя в базу данных вручную', name='add_to_data_base', pass_context=True)
 async def set_role(message, member : discord.User):
     print(f'ADD_TO_DATA_BASE {member.name} / {message.guild} BY {message.author} AT {time_now()}')
@@ -201,6 +216,7 @@ async def set_role(message, member : discord.User):
     else:
         await message.respond(f'Возникла ошибка при добавлении {member.name} в базу данных')
 
+# Добавляет набор из 5 основных ролей для работы сервера
 @bot.slash_command(description='Добавляет на сервер набор из 5 ролей', name='add_bot_roles', pass_context=True)
 async def add_bot_roles(message):
     print(f'ADD_BOT_ROLES TO {message.guild.name}')

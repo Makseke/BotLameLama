@@ -3,6 +3,7 @@ from psycopg2 import Error
 
 from config import config
 
+# Выводит инфомрацию о работе базы данных
 def server_srart():
     global error_finder
     error_finder = 0
@@ -27,6 +28,7 @@ def server_srart():
             cur.close()
             con.close()
 
+# Добавляет пользователя в базу данных
 def add_user(userid, time_on_server, server_name, user_name):
     try:
         con =psycopg2.connect(
@@ -69,6 +71,7 @@ def add_user(userid, time_on_server, server_name, user_name):
             con.close()
         return error_finder
 
+# Добавляет единицу к количеству сообщений пользователя
 def add_message_to_user(userid, guildid):
     try:
         con =psycopg2.connect(
@@ -98,6 +101,7 @@ def add_message_to_user(userid, guildid):
             con.close()
         return error_finder
 
+# Добавляет время проведенное в голосовых каналах пользователю
 def add_time_to_user(userid, guildid, timeinvoise_minutes):
     try:
         con =psycopg2.connect(
