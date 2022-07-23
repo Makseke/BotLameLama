@@ -80,27 +80,22 @@ def role_time(time_for_role, member):
     else:
         return 0
 
-
-# Выводит информацию о работе сервера при запуске
-@bot.event
-async def on_connect():
-    print('--------------------------------------------------')
-    print('SERVER ONLINE')
-    print(time_now())
-    bot_data_base.server_srart()
+print(f'--------------------------------------------------\nSERVER ONLINE\n{time_now()}')
+bot_data_base.server_srart()
 
 # Выводит список серверов использующих бота
 @bot.event
 async def on_ready():
-    print('--------------------------------------------------')
-    print(f'INFO AT {time_now()}')
+    print(f'--------------------------------------------------\nINFO AT {time_now()}')
     for guilds in bot.guilds:
         print(f'{guilds} SERVER WITH {guilds.member_count} USERS USING LAMELAMA')
     print('--------------------------------------------------')
-    print(f"{len(bot.guilds)} SERVERS USING LAMELAMA")
+    print(f"{len(bot.guilds)} SERVERS USING LAMELAMA\nBOT ONLINE")
     print('--------------------------------------------------')
     global tdict
+    global tdict_userleave
     tdict = {}
+    tdict_userleave = {}
     global time_start
     time_start = time.time()
 
@@ -191,11 +186,16 @@ async def info_card(message, member: discord.User):
     dt_member = str(member.created_at).split('.')[0]
     embed = discord.Embed(
         title=f'Информация о пользователе {member.name}',
-        description=f'Отображаемое имя: {member.display_name}\n' \
-                    f'ID пользователя: {member.id}\n' \
-                    f'Дата регистрации аккаунта: {dt_member}\n',
+        description='Основная информация о пользователе',
         color=0xf2da71
     )
+    embed.set_author(name=f'{message.author.display_name}')
+    embed.add_field(name='Отображаемое имя', value=member.display_name, inline=True)
+    embed.add_field(name='ID пользователя', value=member.id, inline=True)
+    embed.add_field(name='Дата регистрации аккаунта', value=str(dt_member).split()[0], inline=False)
+    embed.add_field(name='Время в голосовых каналах', value=str(sec_to_time(int(bot_data_base.get_info(member.id, member.guild.id)[2]) * 60)).split()[0], inline=True)
+    embed.add_field(name='Отправлено сообщений', value=bot_data_base.get_info(member.id, member.guild.id)[4], inline=True)
+    embed.set_footer(text='Тут мог быть важный текст')
     await message.respond(embed=embed)
 
 # Выдает роль пользователю
@@ -208,7 +208,7 @@ async def set_role(message, member : discord.User, role : discord.Role):
 
 # Добавляет пользователя в базу данных в случае если он не был зарегистрирован при подключении к серверу
 @bot.slash_command(description='Добавляет пользователя в базу данных вручную', name='add_to_data_base', pass_context=True)
-async def set_role(message, member : discord.User):
+async def add_to_data_base(message, member : discord.User):
     print(f'ADD_TO_DATA_BASE {member.name} / {message.guild} BY {message.author} AT {time_now()}')
     error_finder = bot_data_base.add_user(member.id, 1, message.guild.id, member.name)
     if error_finder == 0:

@@ -127,3 +127,25 @@ def add_time_to_user(userid, guildid, timeinvoise_minutes):
             cur.close()
             con.close()
             return addtime
+
+def get_info(userid, guildid):
+    try:
+        con = psycopg2.connect(
+            database=config['database'],
+            user=config['user'],
+            password=config['password'],
+            host=config['host']
+        )
+        with con.cursor() as cur:
+            cur.execute(f"SELECT * from users_list where userid = '{userid}'")
+            users = cur.fetchall()
+            for i in users:
+                if str(i[3]) == str(guildid):
+                    main_info = i
+    except (Exception, Error) as error:
+        print("ERROR ID GET_INFO_USER IN USERS_LIST: ", error)
+    finally:
+        if con:
+            cur.close()
+            con.close()
+            return main_info
