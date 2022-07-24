@@ -21,8 +21,12 @@ def server_srart():
             print('--------------------------------------------------')
             print('DATA BASE ONLINE')
             print(f'SERVER VERSION: {cur.fetchone()}')
+            with open('LOG.txt', 'a', encoding="utf-8") as file:
+                file.write(f'--------------------------------------------------\nDATA BASE ONLINE\nSERVER VERSION: {cur.fetchone()}\n')
     except (Exception, Error) as error:
-        print("Ошибка при работе с PostgreSQL", error)
+        print("ERROR IN POSTGRESQL", error)
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f'ERROR IN POSTGRESQL {error}\n')
     finally:
         if con:
             cur.close()
@@ -52,6 +56,8 @@ def add_user(userid, time_on_server, server_name, user_name):
                     cur.execute(user_info)
                     con.commit()
                     print(f"ADD USER IN DATA BASE {user_name}")
+                    with open('LOG.txt', 'a', encoding="utf-8") as file:
+                        file.write(f"ADD USER IN DATA BASE {user_name}\n")
             else:
                 cur.execute(f"SELECT MAX (id) from users_list")
                 max_ = cur.fetchall()
@@ -60,8 +66,12 @@ def add_user(userid, time_on_server, server_name, user_name):
                 cur.execute(user_info)
                 con.commit()
                 print(f"NEW USER IN DATA BASE {user_name}")
+                with open('LOG.txt', 'a', encoding="utf-8") as file:
+                    file.write(f"NEW USER IN DATA BASE {user_name}\n")
     except (Exception, Error) as error:
         print("ERROR IN POSTGRESQL", error)
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f"ERROR IN POSTGRESQL {error}\n")
         error_finder = 1
         return error_finder
     finally:
@@ -92,6 +102,8 @@ def add_message_to_user(userid, guildid):
             con.commit()
     except (Exception, Error) as error:
         print("ERROR ID ADDING MESSAGE TO USERS_LIST: ", error)
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f"ERROR ID ADDING MESSAGE TO USERS_LIST: {error}\n")
         error_finder = 1
         return error_finder
     finally:
@@ -121,7 +133,9 @@ def add_time_to_user(userid, guildid, timeinvoise_minutes):
             cur.execute(update_message_count)
             con.commit()
     except (Exception, Error) as error:
-        print("ERROR ID ADDING MESSAGE TO USERS_LIST: ", error)
+        print("ERROR ID ADDING TIME TO USERS_LIST: ", error)
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f"ERROR ID ADDING TIME TO USERS_LIST: {error}\n")
     finally:
         if con:
             cur.close()
@@ -144,6 +158,8 @@ def get_info(userid, guildid):
                     main_info = i
     except (Exception, Error) as error:
         print("ERROR ID GET_INFO_USER IN USERS_LIST: ", error)
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f"ERROR ID GET_INFO_USER IN USERS_LIST: {error}\n")
     finally:
         if con:
             cur.close()
