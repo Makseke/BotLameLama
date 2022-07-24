@@ -83,6 +83,13 @@ def role_time(time_for_role, member):
 print(f'--------------------------------------------------\nSERVER ONLINE\n{time_now()}')
 bot_data_base.server_srart()
 
+global tdict
+global tdict_user_disconnect
+tdict = {}
+tdict_user_disconnect = {}
+global time_start
+time_start = time.time()
+
 # Выводит список серверов использующих бота
 @bot.event
 async def on_ready():
@@ -92,12 +99,6 @@ async def on_ready():
     print('--------------------------------------------------')
     print(f"{len(bot.guilds)} SERVERS USING LAMELAMA\nBOT ONLINE")
     print('--------------------------------------------------')
-    global tdict
-    global tdict_userleave
-    tdict = {}
-    tdict_userleave = {}
-    global time_start
-    time_start = time.time()
 
 # Добавлеят основные роли при добавлении на сервер
 @bot.event
@@ -115,11 +116,13 @@ async def on_voice_state_update(member, before, after):
     author = member.id
     if before.channel is None and after.channel is not None:
         tdict[author] = time.time()
+        tdict_user_disconnect[author] = None
     elif before.channel is not None and after.channel is None and author in tdict:
         print(sec_to_time(str(time.time()-tdict[author]).split('.')[0]), f'BY {member.name} AT {member.guild}')
         actual_time = int(int(str(time.time()-tdict[author]).split('.')[0])/60)
         time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
         _ = role_time(time_user, member)
+        tdict_user_disconnect[author] = time.time()
         if _ != 0:
             if _ in member.roles:
                 pass
@@ -131,6 +134,7 @@ async def on_voice_state_update(member, before, after):
         actual_time = int(int(str(time.time() - time_start).split('.')[0]) / 60)
         time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
         _ = role_time(time_user, member)
+        tdict_user_disconnect[author] = time.time()
         if _ != 0:
             if _ in member.roles:
                 pass
@@ -180,8 +184,8 @@ async def random_word(message, string: Option(str)):
         await message.respond(string_list[randint(0, len(string_list))])
 
 # Выводит информацию о пользователе в виде карточки
-@bot.slash_command(description='Выводит информацию о пользователе в виде карточки', name='info_card')
-async def info_card(message, member: discord.User):
+@bot.slash_command(description='Выводит информацию о пользователе в виде карточки', name='info')
+async def info(message, member: discord.User):
     print(f'GET INFO_CARD ABOUT {member.name} / {message.guild} BY {message.author} AT {time_now()}')
     dt_member = str(member.created_at).split('.')[0]
     embed = discord.Embed(
@@ -193,9 +197,15 @@ async def info_card(message, member: discord.User):
     embed.add_field(name='Отображаемое имя', value=member.display_name, inline=True)
     embed.add_field(name='ID пользователя', value=member.id, inline=True)
     embed.add_field(name='Дата регистрации аккаунта', value=str(dt_member).split()[0], inline=False)
-    embed.add_field(name='Время в голосовых каналах', value=str(sec_to_time(int(bot_data_base.get_info(member.id, member.guild.id)[2]) * 60)).split()[0], inline=True)
+    addtime = 0
+    try:
+        if tdict[member.id] != None and tdict_user_disconnect[member.id] == None:
+            addtime = int(str(time.time() - tdict[member.id]).split('.')[0])
+    except:
+        pass
+    embed.add_field(name='Время в голосовых каналах', value=str(sec_to_time(int(bot_data_base.get_info(member.id, member.guild.id)[2]) * 60 + addtime)).split()[0], inline=True)
     embed.add_field(name='Отправлено сообщений', value=bot_data_base.get_info(member.id, member.guild.id)[4], inline=True)
-    embed.set_footer(text='Тут мог быть важный текст')
+    embed.set_footer(text=f'Информация актульна на {str(time_now()).split()[1]} {str(time_now()).split()[3]}')
     await message.respond(embed=embed)
 
 # Выдает роль пользователю
