@@ -64,12 +64,12 @@ def role_time(time_for_role, member):
         return role
     elif time_for_role >= 1200:
         for i in member.guild.roles:
-            if i.name == 'Посетитель':
+            if i.name == 'Завсегдатай':
                 role = i
         return role
     elif time_for_role >= 600:
         for i in member.guild.roles:
-            if i.name == 'Завсегдатай':
+            if i.name == 'Посетитель':
                 role = i
         return role
     elif time_for_role >= 1:
@@ -122,8 +122,19 @@ async def on_guild_join(guild):
 # Получает время проведенное пользователем в голосовых каналах
 @bot.event
 async def on_voice_state_update(member, before, after):
+    if after.self_mute == True and after.channel.id != 835231201634680873:
+        print(f'{member} MUTED AT {str(time_now()).split()[3]}')
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f'{member} MUTED AT {str(time_now()).split()[3]}\n')
+    elif before.self_mute == True and after.self_mute == False:
+        print(f'{member} UNMUTED AT {str(time_now()).split()[3]}')
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f'{member} UNMUTED AT {str(time_now()).split()[3]}\n')
     author = member.id
-    if before.channel is None and after.channel is not None:
+    if (before.channel is None and after.channel is not None) or (before.channel.id == 835231201634680873 and after.channel is not None):
+        print(f'{member.name} JOIN TO {after.channel.name} AT {time_now()}')
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f'{member.name} JOIN TO {after.channel.name} AT {time_now()}\n')
         tdict[author] = time.time()
         tdict_user_disconnect[author] = None
     elif before.channel is not None and after.channel is None and author in tdict:
@@ -147,7 +158,7 @@ async def on_voice_state_update(member, before, after):
         print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
         with open('LOG.txt', 'a', encoding="utf-8") as file:
             time_ = sec_to_time(str(time.time()-time_start).split('.')[0])
-            file.write(f'{time_} BY {member.name} AT {member.guild}\n')
+            file.write(f'{time_} BY {member.name} AT {member.guild} AFTER SERVER RESTART\n')
         actual_time = int(int(str(time.time() - time_start).split('.')[0]) / 60)
         time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
         _ = role_time(time_user, member)
@@ -160,6 +171,48 @@ async def on_voice_state_update(member, before, after):
                 with open('LOG.txt', 'a', encoding="utf-8") as file:
                     file.write(f'LVL UP TO {_.name} BY {member.name}\n')
             await member.add_roles(_)
+    elif before.channel != after.channel and after.channel.id !=835231201634680873:
+        print(f'{member.name} JOIN TO {after.channel.name} AT {time_now()}')
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f'{member.name} JOIN TO {after.channel.name} AT {time_now()}\n')
+    if before.channel is not None and after.channel.id == 835231201634680873:
+        print(f'{member.name} MOVED TO {after.channel.name} AT {time_now()} - REASON - AFK MORE THAN 5 MINUTES')
+        with open('LOG.txt', 'a', encoding="utf-8") as file:
+            file.write(f'{member.name} MOVED TO {after.channel.name} AT {time_now()} - REASON - AFK MORE THAN 5 MINUTES\n')
+        if before.channel is not None and author in tdict:
+            print(sec_to_time(str(time.time() - tdict[author]).split('.')[0]), f'BY {member.name} AT {member.guild}')
+            with open('LOG.txt', 'a', encoding="utf-8") as file:
+                time_ = sec_to_time(str(time.time() - tdict[author]).split('.')[0])
+                file.write(f'{time_} BY {member.name} AT {member.guild}\n')
+            actual_time = int(int(str(time.time() - tdict[author]).split('.')[0]) / 60)
+            time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
+            _ = role_time(time_user, member)
+            tdict_user_disconnect[author] = time.time()
+            if _ != 0:
+                if _ in member.roles:
+                    pass
+                else:
+                    print(f'LVL UP TO {_.name} BY {member.name}')
+                    with open('LOG.txt', 'a', encoding="utf-8") as file:
+                        file.write(f'LVL UP TO {_.name} BY {member.name}\n')
+                await member.add_roles(_)
+        elif before.channel is not None and author not in tdict:
+            print(sec_to_time(str(time.time() - time_start).split('.')[0]),f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
+            with open('LOG.txt', 'a', encoding="utf-8") as file:
+                time_ = sec_to_time(str(time.time() - time_start).split('.')[0])
+                file.write(f'{time_} BY {member.name} AT {member.guild} AFTER SERVER RESTART\n')
+            actual_time = int(int(str(time.time() - time_start).split('.')[0]) / 60)
+            time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
+            _ = role_time(time_user, member)
+            tdict_user_disconnect[author] = time.time()
+            if _ != 0:
+                if _ in member.roles:
+                    pass
+                else:
+                    print(f'LVL UP TO {_.name} BY {member.name}')
+                    with open('LOG.txt', 'a', encoding="utf-8") as file:
+                        file.write(f'LVL UP TO {_.name} BY {member.name}\n')
+                await member.add_roles(_)
 
 # Добавляет пользователя в базу данных и выдает роль при подключении к серверу
 @bot.event
@@ -222,7 +275,7 @@ async def info(message, member: discord.User):
         dt_member = str(member.created_at).split('.')[0]
         embed = discord.Embed(
             title=f'Информация о пользователе {member.name}',
-            description='Основная информация о пользователе',
+            description=f'Сервер {message.guild}',
             color=0xf2da71
         )
         embed.set_author(name=f'{message.author.display_name}', icon_url=f'{message.author.avatar}')
