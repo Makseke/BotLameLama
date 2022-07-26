@@ -154,7 +154,7 @@ async def on_voice_state_update(member, before, after):
                 with open('LOG.txt', 'a', encoding="utf-8") as file:
                     file.write(f'LVL UP TO {_.name} BY {member.name}\n')
             await member.add_roles(_)
-    elif before.channel is not None and after.channel is None and author not in tdict:
+    elif before.channel is not None and (after.channel is None or after.channel.id == 835231201634680873) and author not in tdict:
         print(sec_to_time(str(time.time() - time_start).split('.')[0]), f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
         with open('LOG.txt', 'a', encoding="utf-8") as file:
             time_ = sec_to_time(str(time.time()-time_start).split('.')[0])
@@ -175,44 +175,6 @@ async def on_voice_state_update(member, before, after):
         print(f'{member.name} JOIN TO {after.channel.name} AT {time_now()}')
         with open('LOG.txt', 'a', encoding="utf-8") as file:
             file.write(f'{member.name} JOIN TO {after.channel.name} AT {time_now()}\n')
-    if before.channel is not None and after.channel.id == 835231201634680873:
-        print(f'{member.name} MOVED TO {after.channel.name} AT {time_now()} - REASON - AFK MORE THAN 5 MINUTES')
-        with open('LOG.txt', 'a', encoding="utf-8") as file:
-            file.write(f'{member.name} MOVED TO {after.channel.name} AT {time_now()} - REASON - AFK MORE THAN 5 MINUTES\n')
-        if before.channel is not None and author in tdict:
-            print(sec_to_time(str(time.time() - tdict[author]).split('.')[0]), f'BY {member.name} AT {member.guild}')
-            with open('LOG.txt', 'a', encoding="utf-8") as file:
-                time_ = sec_to_time(str(time.time() - tdict[author]).split('.')[0])
-                file.write(f'{time_} BY {member.name} AT {member.guild}\n')
-            actual_time = int(int(str(time.time() - tdict[author]).split('.')[0]) / 60)
-            time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
-            _ = role_time(time_user, member)
-            tdict_user_disconnect[author] = time.time()
-            if _ != 0:
-                if _ in member.roles:
-                    pass
-                else:
-                    print(f'LVL UP TO {_.name} BY {member.name}')
-                    with open('LOG.txt', 'a', encoding="utf-8") as file:
-                        file.write(f'LVL UP TO {_.name} BY {member.name}\n')
-                await member.add_roles(_)
-        elif before.channel is not None and author not in tdict:
-            print(sec_to_time(str(time.time() - time_start).split('.')[0]),f'BY {member.name} AT {member.guild} AFTER SERVER RESTART')
-            with open('LOG.txt', 'a', encoding="utf-8") as file:
-                time_ = sec_to_time(str(time.time() - time_start).split('.')[0])
-                file.write(f'{time_} BY {member.name} AT {member.guild} AFTER SERVER RESTART\n')
-            actual_time = int(int(str(time.time() - time_start).split('.')[0]) / 60)
-            time_user = bot_data_base.add_time_to_user(member.id, member.guild.id, actual_time)
-            _ = role_time(time_user, member)
-            tdict_user_disconnect[author] = time.time()
-            if _ != 0:
-                if _ in member.roles:
-                    pass
-                else:
-                    print(f'LVL UP TO {_.name} BY {member.name}')
-                    with open('LOG.txt', 'a', encoding="utf-8") as file:
-                        file.write(f'LVL UP TO {_.name} BY {member.name}\n')
-                await member.add_roles(_)
 
 # Добавляет пользователя в базу данных и выдает роль при подключении к серверу
 @bot.event
