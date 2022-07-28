@@ -201,7 +201,7 @@ async def on_member_join(member):
 @bot.event
 async def on_message(message):
     if message.author.name != 'BotLameLama':
-        bot_data_base.add_message_to_user(message.author.id, message.author.guild.id)
+        messages = bot_data_base.add_message_to_user(message.author.id, message.author.guild.id)
 
 # Возвращает случайное число в введеном диапазоне
 @bot.slash_command(description="Выдает случайное число в переданном диапазоне", name="random")

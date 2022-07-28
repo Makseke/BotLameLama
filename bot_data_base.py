@@ -84,6 +84,7 @@ def add_user(userid, time_on_server, server_name, user_name):
 # Добавляет единицу к количеству сообщений пользователя
 def add_message_to_user(userid, guildid):
     try:
+        messages = 0
         con =psycopg2.connect(
             database=config['database'],
             user=config['user'],
@@ -104,14 +105,11 @@ def add_message_to_user(userid, guildid):
         print("ERROR ID ADDING MESSAGE TO USERS_LIST: ", error)
         with open('LOG.txt', 'a', encoding="utf-8") as file:
             file.write(f"ERROR ID ADDING MESSAGE TO USERS_LIST: {error}\n")
-        error_finder = 1
-        return error_finder
     finally:
-        error_finder = 0
         if con:
             cur.close()
             con.close()
-        return error_finder
+        return messages
 
 # Добавляет время проведенное в голосовых каналах пользователю
 def add_time_to_user(userid, guildid, timeinvoise_minutes):
